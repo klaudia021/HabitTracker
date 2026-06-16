@@ -58,3 +58,6 @@ nunit-*.xml
 
 # Database
 *.db
+
+# .vscode
+.vscode
