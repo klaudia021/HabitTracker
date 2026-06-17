@@ -1,4 +1,4 @@
-﻿namespace HabitTackerTests;
+﻿namespace HabitTrackerTests;
 
 public class MenuServiceTests
 {
