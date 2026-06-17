@@ -1,9 +1,8 @@
+namespace Services;
 public static class MenuService
 {
     public static void ListMenu()
     {
-        Console.Clear();
-
         Console.WriteLine("Please select a menu option!\n");
 
         Console.WriteLine("------------------------------");
