@@ -27,4 +27,4 @@ jobs:
       run: dotnet build HabitTracker.slnx --no-restore
       
     - name: Test
-      run: dotnet test .\HabitTrackerTests\HabitTrackerTests.csproj --no-build --verbosity normal
+      run: dotnet test ./HabitTrackerTests/HabitTrackerTests.csproj --no-build --verbosity normal
