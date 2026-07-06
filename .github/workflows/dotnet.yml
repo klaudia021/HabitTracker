@@ -10,7 +10,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
 
@@ -27,4 +27,19 @@ jobs:
       run: dotnet build HabitTracker.slnx --no-restore
       
     - name: Test
-      run: dotnet test ./HabitTrackerTests/HabitTrackerTests.csproj --no-build --verbosity normal
+      run: dotnet test ./HabitTrackerTests/HabitTrackerTests.csproj --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: TestResults/
+
+    - name: Publish Test Results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: .NET Tests
+        path: TestResults/*.trx
+        reporter: dotnet-trx
