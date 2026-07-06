@@ -36,7 +36,7 @@ public class MenuServiceTests
         const string LogHabitText =     "2 - Log a habit";
         const string SeeAllLogsText =   "3 - See all habit logs";
         const string SeeOneLogText =    "4 - See one habit's logs";
-        const string ModifyMenuText =    "5 - Modify menu";
+        const string ModifyMenuText =   "5 - Modify menu";
 
         using var output = new StringWriter();
         Console.SetOut(output);
