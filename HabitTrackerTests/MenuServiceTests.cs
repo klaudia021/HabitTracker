@@ -32,10 +32,11 @@ public class MenuServiceTests
     public void ListMenu_ShouldListMenuOptions()
     {
         // Arrange
-        const string ViewAllText =      "1 - View all records";
-        const string InsertRecordText = "2 - Insert a record";
-        const string DeleteRecordText = "3 - Delete a record";
-        const string UpdateRecordText = "4 - Update a record";
+        const string CreateHabitText =  "1 - Create a habit";
+        const string LogHabitText =     "2 - Log a habit";
+        const string SeeAllLogsText =   "3 - See all habit logs";
+        const string SeeOneLogText =    "4 - See one habit's logs";
+        const string ModifyMenuText =    "5 - Modify menu";
 
         using var output = new StringWriter();
         Console.SetOut(output);
@@ -44,9 +45,10 @@ public class MenuServiceTests
         MenuService.ListMainMenu();
 
         // Assert
-        Assert.That(output.ToString(), Does.Contain(ViewAllText));
-        Assert.That(output.ToString(), Does.Contain(InsertRecordText));
-        Assert.That(output.ToString(), Does.Contain(DeleteRecordText));
-        Assert.That(output.ToString(), Does.Contain(UpdateRecordText));
+        Assert.That(output.ToString(), Does.Contain(CreateHabitText));
+        Assert.That(output.ToString(), Does.Contain(LogHabitText));
+        Assert.That(output.ToString(), Does.Contain(SeeAllLogsText));
+        Assert.That(output.ToString(), Does.Contain(SeeOneLogText));
+        Assert.That(output.ToString(), Does.Contain(ModifyMenuText));
     }
 }
