@@ -4,14 +4,17 @@ using HabitTracker;
 
 string connectionString = @"Data Source=Habit-Tracker.db";
 HabitDatabase db = new HabitDatabase(connectionString);
+HabitService habitService = new HabitService(db);
 
 int menuNumber = 0;
+
+Console.WriteLine("\n\n");
 
 do
 {
     try
     {
-        MenuService.ListMenu();
+        MenuService.ListMainMenu();
 
         Console.Write("Please choose a menu action: ");
         string? input = Console.ReadLine();
@@ -20,7 +23,7 @@ do
 
         menuNumber = MenuService.GetValidMenuInput(input);
 
-        EvaluateMenu(menuNumber);
+        EvaluateMainMenu(menuNumber);
 
     }
     catch (SqliteException ex)
@@ -45,7 +48,7 @@ do
 
 } while (menuNumber != 0);
 
-void EvaluateMenu(int menuNumber)
+void EvaluateMainMenu(int menuNumber)
 {
     switch (menuNumber)
     {
@@ -53,48 +56,163 @@ void EvaluateMenu(int menuNumber)
             Console.WriteLine("\nExiting program....");
             break;
         case 1:
-            Read();
+            CreateHabit();
             break;
-        case 2: 
-            Create();
+        case 2:
+            ListHabits();
+            CreateHabitLog();
             break;
         case 3: 
-            Delete();
+            ListHabitLogs();
             break;
         case 4:
-            Update();
+            ListHabitLogsById();
+            break;
+        case 5:
+            ModifyMenu();
             break;
         default:
             break;
     };
 }
 
-void Create()
+void ModifyMenu()
 {
-    Habit habit = new();
+    MenuService.ListModifyMenu();
 
-    habit.Date = ValidatorService.GetValidDateTime();
-    habit.Quantity = ValidatorService.GetValidQuantity();
+    Console.Write("Please choose a menu action: ");
+    string? input = Console.ReadLine();
 
-    db.Create(habit);
+    Console.WriteLine();
+
+    menuNumber = MenuService.GetValidMenuInput(input);
+
+    EvaluateModifyMenu(menuNumber);
 }
 
-void Read()
+void EvaluateModifyMenu(int menuNumber)
 {
-    List<Habit> habits = db.Read();
+    Console.Clear();
 
-    foreach (var habit in habits)
+    switch (menuNumber)
+    {
+        case 1:
+            ListHabits();
+            UpdateHabit();
+            break;
+        case 2:
+            ListHabits();
+            DeleteHabit();
+            break;
+        case 3: 
+            UpdateHabitLog();
+            break;
+        case 4:
+            DeleteHabitLog();
+            break;
+        case 5:
+            UpdateQuantityUnit();
+            break;
+        case 6:
+            DeleteQuantityUnit();
+            break;
+        case 9:
+            CleanUpAndContinue();
+            break;
+        default:
+            break;
+    };
+}
+
+void CreateHabit()
+{
+    Habit habit = new Habit();
+    habit.Name = ValidatorService.GetNotNullInput();
+
+    habitService.CreateHabit(habit);
+}
+
+void ListHabits()
+{
+    List<Habit> habits = habitService.ReadHabits();
+
+    Console.WriteLine("Habits:");
+
+    foreach(var habit in habits)
         Console.WriteLine(habit.ToString());
 }
 
-void Update()
+void UpdateHabit()
+{
+    List<Habit> habits = habitService.ReadHabits();
+
+    if (!habits.Any())
+        return;
+    
+    Console.WriteLine("\nChoose the habit's number you want to update!");
+    int id = ValidatorService.GetValidNumber();
+
+    Console.Write("\nEnter the habit's new name: ");
+    string name = ValidatorService.GetNotNullInput();
+
+    string response = habitService.UpdateHabit(new Habit { HabitId = id, Name = name });
+
+    Console.WriteLine(response);
+}
+
+void DeleteHabit()
+{
+    
+}
+
+void CreateHabitLog()
+{
+    HabitLog habitLog = new();
+    Habit habit = new();
+
+    Console.WriteLine("\nChoose the habit's number you want to log.");
+    habit.HabitId = ValidatorService.GetValidNumber();
+
+    habitLog.Habit = habit;
+    habitLog.Date = ValidatorService.GetValidDateTime();
+    habitLog.Quantity = ValidatorService.GetValidNumber();
+
+    habitService.CreateHabitLog(habitLog);
+}
+
+void ListHabitLogs()
+{
+    List<HabitLog> habitLogs = habitService.ReadHabitLogs();
+
+    Console.WriteLine("Logs:");
+
+    foreach (var logs in habitLogs)
+        Console.WriteLine(logs.ToString());
+}
+
+void UpdateHabitLog()
 {
     System.Console.WriteLine("Update");
 }
 
-void Delete()
+void DeleteHabitLog()
 {
     System.Console.WriteLine("Delete");
+}
+
+void ListHabitLogsById()
+{
+    
+}
+
+void UpdateQuantityUnit()
+{
+    
+}
+
+void DeleteQuantityUnit()
+{
+    
 }
 
 void LogError(Exception exception)

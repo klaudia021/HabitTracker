@@ -41,7 +41,7 @@ public class MenuServiceTests
         Console.SetOut(output);
 
         // Act
-        MenuService.ListMenu();
+        MenuService.ListMainMenu();
 
         // Assert
         Assert.That(output.ToString(), Does.Contain(ViewAllText));

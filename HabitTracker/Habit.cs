@@ -1,19 +1,18 @@
-namespace HabitTracker;
 public class Habit
 {
-    public int Id { get; set; }
-    public DateTime Date { get; set; }
-    public int Quantity { get; set; }
-    public Habit(int id, DateTime date, int quantity)
+    public int HabitId { get; set; }
+    public string Name { get; set; }
+
+    public Habit(int habitId, string name)
     {
-        Id = id;
-        Date = date;
-        Quantity = quantity;
+        HabitId = habitId;
+        Name = name;
     }
+
     public Habit() {}
 
     public override string ToString()
     {
-        return $"Id: {Id} \t Date: {Date.ToShortDateString()} \t Quantity: {Quantity}";
+        return $"Id: {HabitId} \t Name: {Name}";
     }
 }

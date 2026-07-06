@@ -13,7 +13,7 @@ public static class ValidatorService
         {
             try
             {
-                Console.Write("\nEnter the habit's date (17/06/2026) OR enter 't' for today's date: ");
+                Console.Write("\nEnter the habit's date (2026-05-19) OR enter 't' for today's date: ");
                 string input = GetNotNullInput();
 
                 if (input == "t")
@@ -23,7 +23,7 @@ public static class ValidatorService
                 }
                 else
                 {
-                    date = DateTime.ParseExact(input, "dd/MM/yyyy", new CultureInfo("en-US"));
+                    date = DateTime.ParseExact(input, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                     validInput = true;
                 }
@@ -38,22 +38,22 @@ public static class ValidatorService
         return date;
     }
 
-    public static int GetValidQuantity()
+    public static int GetValidNumber()
     {
-        int quantity = 0;
+        int number = 0;
         string input;
 
         do
         {
-            Console.Write("\nEnter the habit's quantity: ");
+            Console.Write("\nEnter a number: ");
             input = GetNotNullInput();
 
-        } while (!int.TryParse(input, out quantity));
+        } while (!int.TryParse(input, out number));
 
-        return quantity;
+        return number;
     }
 
-    private static string GetNotNullInput()
+    public static string GetNotNullInput()
     {
         string? input = Console.ReadLine();
 
