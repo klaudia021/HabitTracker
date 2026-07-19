@@ -4,9 +4,9 @@ public class HabitLog
     public int Id { get; set; }
     public Habit Habit { get; set; }
     public DateTime Date { get; set; }
-    public int Quantity { get; set; }
+    public double Quantity { get; set; }
     public QuantityUnit QuantityUnit { get; set; }
-    public HabitLog(int id, Habit habit, DateTime date, int quantity, QuantityUnit quantityUnit)
+    public HabitLog(int id, Habit habit, DateTime date, double quantity, QuantityUnit quantityUnit)
     {
         Id = id;
         Habit = habit;
@@ -15,7 +15,11 @@ public class HabitLog
         QuantityUnit = quantityUnit;
     }
 
-    public HabitLog() {}
+    public HabitLog()
+    {
+        Habit = new Habit();
+        QuantityUnit = new QuantityUnit();
+    }
 
     public override string ToString()
     {

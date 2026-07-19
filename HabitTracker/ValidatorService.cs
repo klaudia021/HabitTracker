@@ -38,14 +38,14 @@ public static class ValidatorService
         return date;
     }
 
-    public static int GetValidNumber()
+    public static int GetValidInteger(string? consoleText = null)
     {
         int number = 0;
         string input;
 
         do
         {
-            Console.Write("\nEnter a number: ");
+            Console.Write(consoleText ?? "\nEnter a number: ");
             input = GetNotNullInput();
 
         } while (!int.TryParse(input, out number));
@@ -65,5 +65,20 @@ public static class ValidatorService
         }
 
         return input;
+    }
+
+    public static double GetValidDouble(string? consoleText = null)
+    {
+        double number = 0;
+        string input;
+
+        do
+        {
+            Console.Write(consoleText ?? "\nEnter a number: ");
+            input = GetNotNullInput();
+
+        } while (!double.TryParse(input, out number));
+
+        return number;
     }
 }

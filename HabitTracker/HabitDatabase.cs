@@ -1,3 +1,4 @@
+using System.Data;
 using System.Globalization;
 using Microsoft.Data.Sqlite;
 
@@ -17,7 +18,7 @@ public class HabitDatabase
             if (affectedRows != 0)
                 Console.WriteLine($"Tables have been created successfully!");
 
-            if (!(ReadHabits().Any() || ReadQuantityUnits().Any() || ReadHabitLogs().Any()))
+            if (ReadHabits().Count == 0 && ReadQuantityUnits().Count == 0 && ReadHabitLogs().Count == 0)
             {
                 SeedDatabase();
                 Console.WriteLine($"Database has been seeded successfully!");
@@ -42,7 +43,8 @@ public class HabitDatabase
         connection.Open();
 
         SqliteCommand command = connection.CreateCommand();
-        command.CommandText = $"{DatabaseSeed.GetHabitSeedQuery()} {DatabaseSeed.GetQuantityUnitSeedQuery()} {DatabaseSeed.GetHabitLogSeedQuery()}";
+        command.CommandText = @$"{DatabaseSeed.GetHabitSeedQuery()} {DatabaseSeed.GetQuantityUnitSeedQuery()} 
+                                {DatabaseSeed.GetHabitQuantityUnitConnectionSeedQuery()} {DatabaseSeed.GetHabitLogSeedQuery()}";
 
         int affectedRows = command.ExecuteNonQuery();
 
@@ -62,11 +64,18 @@ public class HabitDatabase
                 quantity_unit_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT
             );
+            CREATE TABLE IF NOT EXISTS habit_quantity_unit_connection (
+                connection_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                habit_id INTEGER,
+                quantity_unit_id INTEGER,
+                FOREIGN KEY(habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE,
+                FOREIGN KEY(quantity_unit_id) REFERENCES quantity_unit(quantity_unit_id) ON DELETE RESTRICT
+            );
             CREATE TABLE IF NOT EXISTS habit_log (
                 habit_log_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 habit_id INTEGER,
                 date TEXT,
-                quantity INTEGER,
+                quantity REAL,
                 quantity_unit_id INTEGER,
                 FOREIGN KEY(habit_id) REFERENCES habit(habit_id) ON DELETE CASCADE,
                 FOREIGN KEY(quantity_unit_id) REFERENCES quantity_unit(quantity_unit_id) ON DELETE RESTRICT
@@ -158,6 +167,40 @@ public class HabitDatabase
         connection.Close();
     }
     
+    public Habit? GetHabitByName(string name)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = $"SELECT * FROM habit WHERE name = @Name";
+        command.Parameters.AddWithValue("@Name", name);
+
+        SqliteDataReader reader = command.ExecuteReader();
+
+        if (!reader.HasRows)
+        {
+            connection.Close();
+
+            return null;
+        }
+
+        Habit habit = new Habit();
+
+        while (reader.Read())
+        {
+            habit = new Habit
+            {
+                HabitId = reader.GetInt32(0), 
+                Name = reader.GetString(1),
+            };
+        }
+
+        connection.Close();
+
+        return habit;
+    }
+
     public Habit? GetHabitById(int id)
     {
         using var connection = new SqliteConnection(_connectionString);
@@ -175,7 +218,10 @@ public class HabitDatabase
             return null;
         }
         
-        Habit habit = new Habit { HabitId = reader.GetInt32(0), Name = reader.GetString(1) };
+        Habit habit = null;
+        while (reader.Read())
+            habit = new Habit { HabitId = reader.GetInt32(0), Name = reader.GetString(1) };
+        
         connection.Close();
 
         return habit;
@@ -201,7 +247,7 @@ public class HabitDatabase
 
         int affectedRows = command.ExecuteNonQuery();
 
-        Console.WriteLine($"{affectedRows} habit(s) added to database!");
+        Console.WriteLine($"{affectedRows} habit logged successfully!");
 
         connection.Close();
     }
@@ -237,7 +283,7 @@ public class HabitDatabase
                     Id = reader.GetInt32(0), 
                     Habit = new Habit(reader.GetInt32(1), reader.GetString(2)),
                     Date = DateTime.ParseExact(reader.GetString(3), "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    Quantity = reader.GetInt32(4),
+                    Quantity = reader.GetDouble(4),
                     QuantityUnit = new QuantityUnit(reader.GetInt32(5), reader.GetString(6))
                 }
             );
@@ -286,6 +332,88 @@ public class HabitDatabase
         connection.Close();
     }
 
+    public void CreateQuantityUnit(string name)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = $"INSERT INTO quantity_unit(name) VALUES(@Name)";
+        command.Parameters.AddWithValue("@Name", name);
+
+        command.ExecuteNonQuery();
+
+        connection.Close();
+    }
+
+    public QuantityUnit? GetQuantityUnitByName(string name)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = $"SELECT * FROM quantity_unit WHERE name = @Name";
+        command.Parameters.AddWithValue("@Name", name);
+
+        SqliteDataReader reader = command.ExecuteReader();
+
+        if (!reader.HasRows)
+        {
+            connection.Close();
+
+            return null;
+        }
+
+        QuantityUnit quantityUnit = new QuantityUnit();
+
+        while (reader.Read())
+        {
+            quantityUnit = new QuantityUnit
+            {
+                QuantityUnitId = reader.GetInt32(0), 
+                Name = reader.GetString(1),
+            };
+        }
+
+        connection.Close();
+
+        return quantityUnit;
+    }
+
+    public QuantityUnit? GetQuantityUnitById(int id)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = $"SELECT * FROM quantity_unit WHERE quantity_unit_id = @Id";
+        command.Parameters.AddWithValue("@Id", id);
+
+        SqliteDataReader reader = command.ExecuteReader();
+
+        if (!reader.HasRows)
+        {
+            connection.Close();
+
+            return null;
+        }
+
+        QuantityUnit quantityUnit = new QuantityUnit();
+
+        while (reader.Read())
+        {
+            quantityUnit = new QuantityUnit
+            {
+                QuantityUnitId = reader.GetInt32(0), 
+                Name = reader.GetString(1),
+            };
+        }
+
+        connection.Close();
+
+        return quantityUnit;
+    }
+
     public List<QuantityUnit> ReadQuantityUnits()
     {
         using var connection = new SqliteConnection(_connectionString);
@@ -302,7 +430,7 @@ public class HabitDatabase
             Console.WriteLine("No data present!");
             connection.Close();
 
-            return quantities;
+            return new List<QuantityUnit>();
         }
 
         while (reader.Read())
@@ -319,5 +447,46 @@ public class HabitDatabase
         connection.Close();
 
         return quantities;
+    }
+
+    public QuantityUnit? GetQuantityUnitByHabitId(int habitId)
+    {
+        using SqliteConnection connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        SqliteCommand command = connection.CreateCommand();
+        command.CommandText = @"SELECT quantity_unit.quantity_unit_id, quantity_unit.name
+                                FROM habit_quantity_unit_connection
+                                JOIN quantity_unit ON quantity_unit.quantity_unit_id = habit_quantity_unit_connection.quantity_unit_id
+                                WHERE habit_quantity_unit_connection.habit_id = @Id"; 
+        command.Parameters.AddWithValue("@Id", habitId);
+
+        var reader = command.ExecuteReader();
+
+        if (!reader.HasRows)
+            return null;
+
+        QuantityUnit result = null;
+        while (reader.Read())
+            result = new QuantityUnit(quantityUnitId: reader.GetInt32(0), name: reader.GetString(1));
+
+        connection.Close();
+
+        return result;
+    }
+
+    public void CreateHabitQuantityUnitConnection(int habitId, int quantityUnitId)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = $"INSERT INTO habit_quantity_unit_connection(habit_id, quantity_unit_id) VALUES(@HabitId, @QuantityUnitId)";
+        command.Parameters.AddWithValue("@HabitId", habitId);
+        command.Parameters.AddWithValue("@QuantityUnitId", quantityUnitId);
+
+        command.ExecuteNonQuery();
+
+        connection.Close();
     }
 }

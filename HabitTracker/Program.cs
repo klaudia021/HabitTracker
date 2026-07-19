@@ -32,6 +32,12 @@ do
 
         LogError(ex);
     }
+    catch (InvalidOperationException ex)
+    {
+        Console.WriteLine(ex.Message);
+        
+        LogError(ex);
+    }
     catch (Exception ex)
     {
         Console.WriteLine("An unexpected error occurred!");
@@ -56,6 +62,13 @@ void EvaluateMainMenu(int menuNumber)
             Console.WriteLine("\nExiting program....");
             break;
         case 1:
+            //TODO NEXT
+            // A	            B	                        Passed
+            // New habit	Chosen right ID	                OK
+            //              Chosen wrong ID	
+            // New habit	New UoM, name already present	Ok
+            //              New UoM, new name	            OK
+
             CreateHabit();
             break;
         case 2:
@@ -66,6 +79,7 @@ void EvaluateMainMenu(int menuNumber)
             ListHabitLogs();
             break;
         case 4:
+            //TODO
             ListHabitLogsById();
             break;
         case 5:
@@ -78,6 +92,7 @@ void EvaluateMainMenu(int menuNumber)
 
 void ModifyMenu()
 {
+    Console.Clear();
     MenuService.ListModifyMenu();
 
     Console.Write("Please choose a menu action: ");
@@ -102,18 +117,23 @@ void EvaluateModifyMenu(int menuNumber)
             break;
         case 2:
             ListHabits();
+            //TODO
             DeleteHabit();
             break;
         case 3: 
+            //TODO
             UpdateHabitLog();
             break;
         case 4:
+            //TODO
             DeleteHabitLog();
             break;
         case 5:
+            //TODO
             UpdateQuantityUnit();
             break;
         case 6:
+            //TODO
             DeleteQuantityUnit();
             break;
         case 9:
@@ -126,14 +146,30 @@ void EvaluateModifyMenu(int menuNumber)
 
 void CreateHabit()
 {
+    Console.Clear();
+
     Habit habit = new Habit();
+    Console.Write("\nEnter the habit's name: ");
     habit.Name = ValidatorService.GetNotNullInput();
 
-    habitService.CreateHabit(habit);
+    ListQuantityUnits();
+    int number = ValidatorService.GetValidInteger("\nEnter the number of the chosen unit of measurement or enter 0 to create a new one: ");
+
+    QuantityUnit quantityUnit = new QuantityUnit() { QuantityUnitId = number};
+
+    if (number == 0)
+    {
+        Console.Write("\nEnter the name of the new unit of measurement: ");
+        quantityUnit.Name = ValidatorService.GetNotNullInput();
+    }
+
+    habitService.CreateHabitWithQuantityUnit(habit, quantityUnit);
 }
 
 void ListHabits()
 {
+    Console.Clear();
+
     List<Habit> habits = habitService.ReadHabits();
 
     Console.WriteLine("Habits:");
@@ -150,7 +186,7 @@ void UpdateHabit()
         return;
     
     Console.WriteLine("\nChoose the habit's number you want to update!");
-    int id = ValidatorService.GetValidNumber();
+    int id = ValidatorService.GetValidInteger();
 
     Console.Write("\nEnter the habit's new name: ");
     string name = ValidatorService.GetNotNullInput();
@@ -168,14 +204,21 @@ void DeleteHabit()
 void CreateHabitLog()
 {
     HabitLog habitLog = new();
-    Habit habit = new();
 
-    Console.WriteLine("\nChoose the habit's number you want to log.");
-    habit.HabitId = ValidatorService.GetValidNumber();
+    Console.WriteLine("\nChoose the habit's number you want to log. Enter 0 to go back.");
+    var habitId = ValidatorService.GetValidInteger();
 
-    habitLog.Habit = habit;
+    if (habitId == 0)
+        return;
+
+    habitLog.Habit.HabitId = habitId;
+
+    Console.Clear();
+
     habitLog.Date = ValidatorService.GetValidDateTime();
-    habitLog.Quantity = ValidatorService.GetValidNumber();
+
+    string quantityName = habitService.ReadQuantityNameForHabit(habitId);
+    habitLog.Quantity = ValidatorService.GetValidDouble($"\nEnter quantity({quantityName}): ");
 
     habitService.CreateHabitLog(habitLog);
 }
@@ -203,6 +246,23 @@ void DeleteHabitLog()
 void ListHabitLogsById()
 {
     
+}
+
+void ListQuantityUnits()
+{
+    var quantities = habitService.ReadQuantityUnits();
+
+    if (quantities.Count == 0)
+    {
+        Console.WriteLine("\nNo recorded quantity found. Please create a new one.");
+
+        return;
+    }
+
+    Console.WriteLine("\nAvailable units of measurement: ");
+
+    foreach (var quantity in quantities)
+        Console.WriteLine($"{quantity.QuantityUnitId} - {quantity.Name}");
 }
 
 void UpdateQuantityUnit()
