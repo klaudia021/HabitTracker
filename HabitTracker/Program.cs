@@ -62,13 +62,6 @@ void EvaluateMainMenu(int menuNumber)
             Console.WriteLine("\nExiting program....");
             break;
         case 1:
-            //TODO NEXT
-            // A	            B	                        Passed
-            // New habit	Chosen right ID	                OK
-            //              Chosen wrong ID	
-            // New habit	New UoM, name already present	Ok
-            //              New UoM, new name	            OK
-
             CreateHabit();
             break;
         case 2:
@@ -83,6 +76,9 @@ void EvaluateMainMenu(int menuNumber)
             ListHabitLogsById();
             break;
         case 5:
+            ListHabits();
+            break;
+        case 6:
             ModifyMenu();
             break;
         default:

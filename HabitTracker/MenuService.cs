@@ -10,7 +10,8 @@ public static class MenuService
         Console.WriteLine("2 - Log a habit");
         Console.WriteLine("3 - See all habit logs");
         Console.WriteLine("4 - See one habit's logs");
-        Console.WriteLine("5 - Modify menu");
+        Console.WriteLine("5 - See all habits");
+        Console.WriteLine("6 - Modify menu");
         Console.WriteLine("0 - Exit");
         Console.WriteLine($"------------------------------");
     }

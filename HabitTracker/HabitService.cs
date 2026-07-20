@@ -14,7 +14,7 @@ public class HabitService
         var habitDb = CreateHabit(habit);
 
         if (quantityUnitDb == null || habitDb == null)
-            throw new InvalidOperationException("Habit could not be created with the given unit of measurement.");
+            throw new InvalidOperationException("Error: Habit could not be created with the given unit of measurement.");
 
         var quantityUnitId = quantityUnitDb.QuantityUnitId;
         var habitId = habitDb.HabitId;
@@ -33,6 +33,8 @@ public class HabitService
 
             Console.WriteLine("Habit created successfully!");
         }
+        else
+            throw new InvalidOperationException($"Error: Habit already exists with name '{habit.Name}'");
 
         return habitDb;
     }
@@ -60,8 +62,7 @@ public class HabitService
 
     public void CreateHabitLog(HabitLog habitLog)
     {
-        List<Habit> habits = ReadHabits();
-        Habit? habit = habits.Find(h => h.HabitId == habitLog.Habit.HabitId);
+        Habit? habit = _habitDatabase.GetHabitById(habitLog.Habit.HabitId);
 
         if (habit == null)
         {

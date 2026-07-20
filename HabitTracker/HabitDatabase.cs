@@ -218,7 +218,7 @@ public class HabitDatabase
             return null;
         }
         
-        Habit habit = null;
+        Habit? habit = null;
         while (reader.Read())
             habit = new Habit { HabitId = reader.GetInt32(0), Name = reader.GetString(1) };
         
